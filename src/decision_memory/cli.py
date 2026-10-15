@@ -21,6 +21,17 @@ def main():
     doctor.add_argument("--rebuild", action="store_true")
     stage = commands.add_parser("stage", help="仅生成候选，不批准；需用户明确要求")
     stage.add_argument("file", type=Path)
+    preview = commands.add_parser("preview", help="只读展示完整候选；- 从标准输入预览，不保存草稿")
+    preview.add_argument("source", help="库内 drafts/ 相对路径，或 -")
+    approve = commands.add_parser("approve", help="仅在当前用户明确批准已展示版本后记录")
+    approve.add_argument("draft", help="库内 drafts/ 相对路径")
+    revoke = commands.add_parser("revoke", help="仅在用户明确要求停用此版本后执行")
+    revoke.add_argument("record_id")
+    for authorized in (approve, revoke):
+        authorized.add_argument("--sha256", required=True)
+        authorized.add_argument("--vault-id", required=True)
+        authorized.add_argument("--confirmed", action="store_true")
+        authorized.add_argument("--approval-message", required=True, help="当前用户确认原话，不是模型推断")
     search = commands.add_parser("search")
     search.add_argument("query")
     search.add_argument("--project", default="")
@@ -50,6 +61,17 @@ def main():
                 result = store.doctor(args.rebuild)
             case "stage":
                 result = {"draft": store.stage(parse_record(args.file.read_bytes())), "approved": False}
+            case "preview":
+                from .conversation import preview
+                result = preview(store, args.source, sys.stdin.buffer.read() if args.source == "-" else None)
+            case "approve":
+                from .conversation import approve
+                result = approve(store, args.draft, args.sha256, args.vault_id,
+                                 args.confirmed, args.approval_message)
+            case "revoke":
+                from .conversation import revoke
+                result = revoke(store, args.record_id, args.sha256, args.vault_id,
+                                args.confirmed, args.approval_message)
             case "search":
                 result = store.search(args.query, args.project, args.environment)
             case "context":

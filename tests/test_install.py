@@ -47,6 +47,20 @@ def test_refuse_overwriting_an_unmanaged_skill(tmp_path):
         installer.plan(tmp_path / 'codex', tmp_path / 'skills', tmp_path / 'vault')
 
 
+def test_instruction_upgrade_preserves_equivalent_mcp_config_bytes(tmp_path):
+    home, skills = tmp_path / 'codex', tmp_path / 'skills'
+    vault, backups = tmp_path / 'vault', tmp_path / 'backups'
+    installer.install(home, skills, vault, backups, apply=True)
+    config = home / 'config.toml'
+    original = config.read_bytes() + b'\n# Keep my existing formatting and comments.\n'
+    config.write_bytes(original)
+    (home / 'AGENTS.md').write_text(installer.BEGIN + '\nold page-only policy\n' + installer.END, encoding='utf-8')
+    result = installer.install(home, skills, vault, backups, apply=True)
+    assert str(home / 'AGENTS.md') in result['changed_paths']
+    assert str(config) not in result['changed_paths']
+    assert config.read_bytes() == original
+
+
 def test_refuse_malformed_instruction_markers():
     with pytest.raises(ValueError, match='边界'):
         installer.replace_block(installer.BEGIN + '\nunfinished', 'replacement')

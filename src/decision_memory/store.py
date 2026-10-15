@@ -72,7 +72,7 @@ class Store:
         (self.root / "memory/records").mkdir(parents=True, exist_ok=True)
         landing = self.root / "开始使用.md"
         if not landing.exists():
-            atomic_write(landing, "# 个人决策库\n\n让 Codex 按你的要求反思，与你讨论修改后，再生成 `drafts/` 中的候选。\n\n在本机审核页面确认具体版本后，它才会成为正式记忆。批准不等于效果已验证。\n\n`memory/records/` 保存历史版本；是否生效由正式清单与内容指纹共同决定。直接修改正式文件后，应重新生成候选并审核。\n".encode("utf-8"))
+            atomic_write(landing, "# 个人决策库\n\n让 Codex 按你的要求反思、讨论，在对话中展示完整待记录内容。\n\n你明确批准该版本并要求记录后，Codex 才通过本地命令保存，不需要打开审核页面。仅反思或说“不错”不等于批准；批准不等于效果已验证。\n\n`memory/records/` 保存历史版本；是否生效由正式清单与内容指纹共同决定。直接修改正式文件后，应重新生成候选并审核。\n".encode("utf-8"))
         return manifest
 
     @contextmanager
@@ -165,13 +165,16 @@ class Store:
                                 "error": str(exc)})
         return results
 
-    def publish(self, relative: str, expected_hash: str) -> dict:
-        """Called by the user review UI, not exported as an agent/MCP tool."""
+    def publish(self, relative: str, expected_hash: str, *, expected_vault_id: str | None = None,
+                approval: dict | None = None) -> dict:
+        """Publish the approved bytes via the conversation CLI or legacy review UI."""
         with self._lock():
             record, raw = self.draft(relative)
             if digest(raw) != expected_hash:
                 raise MemoryError("候选已经变化，请重新阅读并确认最新版本")
             manifest = self._manifest()
+            if expected_vault_id is not None and manifest["vault_id"] != expected_vault_id:
+                raise MemoryError("审核的库与当前库不一致，不记录到其他库")
             previous = manifest["entries"].get(record.id)
             if previous and previous["status"] == "active" and previous["sha256"] == expected_hash:
                 return {"id": record.id, "version": previous["version"], "unchanged": True}
@@ -185,6 +188,8 @@ class Store:
             entry = {"version": new_version, "status": "active", "sha256": expected_hash,
                      "path": relative_target, "approved_at": now(), "transaction": transaction,
                      "supersedes": version or None}
+            if approval is not None:
+                entry["approval"] = approval
             journal = {"operation": "publish", "id": record.id, "entry": entry,
                        "generation_before": manifest["generation"], "phase": "prepared"}
             journal_path = self.state / "transactions" / f"{transaction}.json"
@@ -207,9 +212,12 @@ class Store:
                 pass  # doctor can infer a completed commit; do not undo a successful approval
             return {"id": record.id, "version": new_version, "unchanged": False}
 
-    def revoke(self, record_id: str, expected_hash: str) -> dict:
+    def revoke(self, record_id: str, expected_hash: str, *, expected_vault_id: str | None = None,
+               approval: dict | None = None) -> dict:
         with self._lock():
             manifest = self._manifest()
+            if expected_vault_id is not None and manifest["vault_id"] != expected_vault_id:
+                raise MemoryError("审核的库与当前库不一致，不停用其他库的记录")
             entry = manifest["entries"].get(record_id)
             if not entry or entry["sha256"] != expected_hash:
                 raise MemoryError("正式记录已变化或不存在，请重新读取")
@@ -219,6 +227,8 @@ class Store:
             atomic_write(self.state / "history" / f"{manifest['generation']}-{transaction}.json",
                          json_bytes(manifest))
             entry.update(status="revoked", revoked_at=now(), transaction=transaction)
+            if approval is not None:
+                entry["revocation_approval"] = approval
             manifest["generation"] += 1
             atomic_write(self.manifest_path, json_bytes(manifest))
             return {"id": record_id, "revoked": True}
