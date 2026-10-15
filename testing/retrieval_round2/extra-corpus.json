@@ -1,0 +1,65 @@
+{
+  "synthetic_only": true,
+  "records": [
+    {
+      "id": "SYN-R02-DB", "title": "合成案例：数据库字段升级与回滚", "kind": "decision_case",
+      "project_scope": ["SYN-team-tools"], "environments": [],
+      "tags": ["数据库迁移", "回滚", "字段升级"], "aliases": ["结构变更"],
+      "sources": ["R02 合成测试设定，不代表用户经验"],
+      "considerations": ["线上数据能否恢复", "升级失败能否退回原来的结构与内容"],
+      "rationale": "数据库增加或修改字段以前，应验证备份、迁移脚本和回退路径，降低升级中断后的恢复难度。",
+      "applies_when": ["线上数据库结构需要变更", "既有数据需要保留"],
+      "exceptions": ["一次性且可完全重建的试验库，可以采用不同的恢复方案"],
+      "action": "先在小样本验证升级和回滚，再决定线上执行步骤。",
+      "body": "合成案例，仅用于独立临时库。"
+    },
+    {
+      "id": "SYN-R02-BACKUP", "title": "合成案例：备份副本的恢复验证", "kind": "lesson",
+      "project_scope": ["SYN-team-tools"], "environments": [],
+      "tags": ["资料备份", "恢复验证", "副本"], "aliases": ["还原演练"],
+      "sources": ["R02 合成测试设定，不代表真实用户历史"],
+      "considerations": ["备份是否完整", "副本是否能够恢复成可用资料"],
+      "rationale": "定期复制个人资料并不代表备份一定可用；只看文件存在，不能替代实际恢复验证。",
+      "applies_when": ["定期备份个人资料或重要文件"],
+      "exceptions": ["可直接重新获取且无需保留历史的数据，可以降低演练频率"],
+      "action": "从副本恢复少量资料并检查内容和可读性，记录验证结果。",
+      "body": "独立合成测试记录。"
+    },
+    {
+      "id": "SYN-R02-CSV", "title": "合成案例：CSV 中文导出与 Excel 显示", "kind": "lesson",
+      "project_scope": ["SYN-team-tools"], "environments": ["windows"],
+      "tags": ["CSV", "Excel", "中文乱码", "编码"], "aliases": ["字符显示异常"],
+      "sources": ["R02 虚构文件交换案例，不是真实项目复盘"],
+      "considerations": ["导出文件的字符编码", "接收软件打开文件的方式"],
+      "rationale": "CSV 在 Excel 中打开出现中文乱码时，应先检查导出编码及导入方式，再判断数据本身是否损坏。",
+      "applies_when": ["Windows 上通过 Excel 查看导出的 CSV 文件"],
+      "exceptions": ["接收端明确规定其他编码时，按实际约定生成和验证"],
+      "action": "对照原始字段检查文件编码和导入选项，使用少量中文样本验证显示。",
+      "body": "该条限制 Windows 环境，用于检查新题的环境过滤。"
+    },
+    {
+      "id": "SYN-R02-DEVICE", "title": "合成外部资料：办公室打印设备的日常设置", "kind": "external_note",
+      "project_scope": ["SYN-team-tools"], "environments": [],
+      "tags": ["维护", "设置", "内部", "调整", "打印设备"], "aliases": ["纸张尺寸"],
+      "sources": ["虚构设备说明文章，不代表用户偏好"],
+      "considerations": ["打印设备的纸张和默认设置", "调整后是否能正常打印"],
+      "rationale": "办公室打印设备调整纸张尺寸或恢复默认设置后，需要打印样张检查结果。内部设备的日常维护属于设备管理事项。",
+      "applies_when": ["配置办公室打印设备"],
+      "exceptions": ["设备故障或耗材不足时，需另行排查原因"],
+      "action": "参考设备说明核对纸张尺寸和默认设置，再打印样张。",
+      "body": "这是设备管理外部资料，不是内部软件交接经验。"
+    },
+    {
+      "id": "SYN-R02-PARAM", "title": "合成案例：开发团队的脚本批量参数配置", "kind": "decision_case",
+      "project_scope": ["SYN-team-tools"], "environments": [],
+      "tags": ["定时脚本", "批量处理", "命令行配置"], "aliases": ["参数文件"],
+      "sources": ["R02 合成设计取舍，不是用户真实选择"],
+      "considerations": ["维护者是否都是开发者", "参数能否批量变更", "执行过程是否便于自动化"],
+      "rationale": "开发团队维护的定时脚本，若需要批量变更参数，可优先比较命令行与参数文件的自动化便利性。",
+      "applies_when": ["维护者都是开发者", "批量变更与定时执行是主要需求"],
+      "exceptions": ["非技术同事需要经常手动修改设置时，应重新比较操作入口"],
+      "action": "比较参数文件和命令行方案，验证批量变更是否容易追踪和回退。",
+      "body": "与图形入口经验相近，但适用条件不同；检索层不负责替代条件判断。"
+    }
+  ]
+}

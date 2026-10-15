@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "synthetic_only": true,
+  "records": [
+    {
+      "id": "SYN-M01",
+      "title": "合成案例：内部小工具的日常设置入口",
+      "kind": "decision_case",
+      "project_scope": ["SYN-team-tools"],
+      "environments": [],
+      "tags": ["图形入口", "非技术维护", "小工具"],
+      "aliases": ["可视化配置", "交接维护"],
+      "sources": ["R01 合成测试设定，不代表真实用户观点或历史"],
+      "considerations": ["后续维护者的技术能力", "日常修改能否由接手人员完成", "初始开发与持续维护的取舍"],
+      "rationale": "内部小工具交给非技术同事后，如果修改常用设置必须编辑代码，交接成本会持续存在。此测试设定要求比较日常操作入口与实现工作量，不预设所有工具都必须开发完整界面。",
+      "applies_when": ["内部小工具由非技术同事负责后续维护", "常见设置会持续调整"],
+      "exceptions": ["维护者全部是开发者，且批量处理是明确重点时，不要求图形入口", "一次性使用且不会移交的原型，需要重新比较实现成本"],
+      "action": "在适用条件成立时，优先为常见修改提供图形入口；例外成立时按实际需求比较命令行或脚本。",
+      "verification": "unverified",
+      "body": "仅用于临时测试库。检索到本条不代表默认动作一定适用，必须核对例外以及当前用户指令。"
+    },
+    {
+      "id": "SYN-M02",
+      "title": "合成案例：Windows 商品爬虫重复写入",
+      "kind": "lesson",
+      "project_scope": ["SYN-crawler"],
+      "environments": ["windows"],
+      "tags": ["商品去重", "Excel", "爬虫"],
+      "aliases": ["重复写入"],
+      "sources": ["R01 合成范围过滤案例，不代表真实项目经历"],
+      "considerations": ["唯一商品标识", "旧表兼容性"],
+      "rationale": "在此虚构的 Windows 爬虫案例中，重复运行前应比较稳定商品标识，避免重复追加。该条特意限制项目和环境以检查硬过滤。",
+      "applies_when": ["SYN-crawler 在 Windows 上向既有 Excel 追加商品"],
+      "exceptions": ["业务允许同一商品保留多个历史快照时，应另行定义唯一键"],
+      "action": "按定义好的商品标识核对既有数据，再追加新商品。",
+      "verification": "unverified",
+      "body": "本条是干扰项和硬过滤测试数据，不应被应用到其他项目或其他环境。"
+    },
+    {
+      "id": "SYN-X01",
+      "title": "合成外部资料：命令行配置与操作方式",
+      "kind": "external_note",
+      "project_scope": ["SYN-team-tools"],
+      "environments": [],
+      "tags": ["维护", "操作方式", "命令行", "配置"],
+      "aliases": ["命令行工具", "自动化脚本"],
+      "sources": ["虚构外部文章，仅用于检索干扰，不是用户观点"],
+      "considerations": ["操作方式是否便于自动化", "配置是否便于批量分发"],
+      "rationale": "这篇合成外部资料认为，开发团队可比较命令行配置的自动化便利性。它只是外部意见，不能因为被放进测试库就被解释为用户偏好。",
+      "applies_when": ["评估开发团队的维护与操作方式"],
+      "exceptions": ["接手人员不理解命令行时，需要另外比较操作门槛"],
+      "action": "将文章意见作为外部参考，结合实际维护者与任务判断。",
+      "verification": "unverified",
+      "body": "本条与 SYN-M01 存在词面重叠，用于观察排序以及来源类型是否完整保留。"
+    }
+  ]
+}

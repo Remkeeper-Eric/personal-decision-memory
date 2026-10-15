@@ -7,6 +7,7 @@
 使用 Windows、Python 3.12，按 README 创建 .venv、安装锁定依赖并可编辑安装。运行：
 
 ```powershell
+New-Item -ItemType Directory -Path runtime -Force | Out-Null
 .\.venv\Scripts\python.exe -m pytest --basetemp runtime/pytest-contribution
 .\.venv\Scripts\python.exe scripts/prepare_release.py --check
 ```

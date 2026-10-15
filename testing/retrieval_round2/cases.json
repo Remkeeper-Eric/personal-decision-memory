@@ -1,0 +1,42 @@
+{
+  "cases": [
+    {"id": "R02-01", "title": "同事接管小程序的新问法", "category": "recall", "operations": [
+      {"method": "search", "params": {"query": "这个小程序交给不懂代码的同事接管，日常改参数希望能在界面完成，交付时要考虑什么？", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01"], "max_rank": {"SYN-M01": 3}, "complete_conditions_for": ["SYN-M01"], "no_warnings": true}}
+    ]},
+    {"id": "R02-02", "title": "低文字重叠的交接表达", "category": "semantic_boundary", "operations": [
+      {"method": "search", "params": {"query": "交棒给不懂开发的助理以后，希望他自己按几下就能改选项。", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01"], "no_warnings": true}}
+    ]},
+    {"id": "R02-03", "title": "数据库升级与回退", "category": "recall", "operations": [
+      {"method": "search", "params": {"query": "要给线上数据库增加一个字段，怎样确保失败后能退回升级前的状态？", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-R02-DB"], "max_rank": {"SYN-R02-DB": 1}, "no_warnings": true}},
+      {"method": "context", "params": {"query": "要给线上数据库增加一个字段，怎样确保失败后能退回升级前的状态？", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-R02-DB"], "complete_conditions_for": ["SYN-R02-DB"], "no_warnings": true}},
+      {"method": "get", "params": {"record_id": "SYN-R02-DB", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-R02-DB"], "complete_conditions_for": ["SYN-R02-DB"], "versions": {"SYN-R02-DB": 1}}}
+    ]},
+    {"id": "R02-04", "title": "备份是否真正可恢复", "category": "recall", "operations": [
+      {"method": "search", "params": {"query": "定期复制个人资料以后，怎么确认这些副本真的能恢复，而不是只看文件在不在？", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-R02-BACKUP"], "max_rank": {"SYN-R02-BACKUP": 1}, "no_warnings": true}}
+    ]},
+    {"id": "R02-05", "title": "CSV 中文显示问题", "category": "recall", "operations": [
+      {"method": "search", "params": {"query": "导出的 CSV 用 Excel 打开后中文显示乱码，应该先核查什么？", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-R02-CSV"], "max_rank": {"SYN-R02-CSV": 1}, "no_warnings": true}}
+    ]},
+    {"id": "R02-06", "title": "开发者批量参数配置", "category": "recall", "operations": [
+      {"method": "search", "params": {"query": "都是开发者维护的定时脚本，需要批量变更参数，怎样设计配置入口？", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-R02-PARAM"], "max_rank": {"SYN-R02-PARAM": 1}, "no_warnings": true}}
+    ]},
+    {"id": "R02-07", "title": "外部设备资料的召回和类型", "category": "source_type", "operations": [
+      {"method": "search", "params": {"query": "报表打印设备需要调整纸张尺寸和恢复默认设置，该先核对什么？", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-R02-DEVICE"], "max_rank": {"SYN-R02-DEVICE": 1}, "kinds": {"SYN-R02-DEVICE": "external_note"}, "no_warnings": true}}
+    ]},
+    {"id": "R02-08", "title": "办公室活动与家具摆放干扰", "category": "false_positive", "operations": [
+      {"method": "search", "params": {"query": "这个内部办公室不会开会，准备调整桌椅摆放位置。", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"empty": true, "no_warnings": true}}
+    ]},
+    {"id": "R02-09", "title": "园艺交接的文字重叠", "category": "false_positive", "operations": [
+      {"method": "search", "params": {"query": "员工接手内部园艺工作以后，需要调整盆栽摆放方向。", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"empty": true, "no_warnings": true}}
+    ]},
+    {"id": "R02-10", "title": "家电维护和设置", "category": "false_positive", "operations": [
+      {"method": "search", "params": {"query": "请帮我维护空调滤网，并设置厨房烤箱的温度。", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"empty": true, "no_warnings": true}}
+    ]},
+    {"id": "R02-11", "title": "新记录的环境硬过滤", "category": "scope", "operations": [
+      {"method": "search", "params": {"query": "导出的 CSV 用 Excel 打开后中文显示乱码，应该先核查什么？", "project": "SYN-team-tools", "environments": ["linux"]}, "expect": {"forbids_ids": ["SYN-R02-CSV"], "no_warnings": true}}
+    ]},
+    {"id": "R02-12", "title": "排除迁移后的备份主题排序", "category": "negation_boundary", "operations": [
+      {"method": "search", "params": {"query": "不做数据库迁移，只核查备份副本是否能恢复。", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-R02-BACKUP"], "max_rank": {"SYN-R02-BACKUP": 1}, "no_warnings": true}}
+    ]}
+  ]
+}

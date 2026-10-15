@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "R01-01", "title": "记录内关键词", "tier": "required", "state": "active",
+      "operations": [{"method": "search", "params": {"query": "图形入口", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01"], "versions": {"SYN-M01": 1}, "no_warnings": true}}]
+    },
+    {
+      "id": "R01-02", "title": "完整自然中文问句", "tier": "exploratory", "state": "active",
+      "operations": [{"method": "search", "params": {"query": "给不懂代码的同事使用并负责后续维护的内部工具应该怎样提供日常设置入口？", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01"], "no_warnings": true}}]
+    },
+    {
+      "id": "R01-03", "title": "未收录同义表达", "tier": "exploratory", "state": "active",
+      "operations": [{"method": "search", "params": {"query": "接手的人不会编程，只想点按钮来调整选项，这类内部助手该怎么交付？", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01"], "no_warnings": true}}]
+    },
+    {
+      "id": "R01-04", "title": "多个考量与外部资料干扰", "tier": "exploratory", "state": "active",
+      "operations": [{"method": "search", "params": {"query": "维护 操作方式 命令行 配置 图形入口", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01", "SYN-X01"], "max_rank": {"SYN-M01": 5}, "kinds": {"SYN-X01": "external_note"}, "no_warnings": true}}]
+    },
+    {
+      "id": "R01-05", "title": "例外场景仍可找到完整经验", "tier": "exploratory", "state": "active",
+      "operations": [{"method": "search", "params": {"query": "这次维护者都是开发者而且批量处理优先，还需要坚持图形入口吗？", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01"], "complete_conditions_for": ["SYN-M01"], "no_warnings": true}}]
+    },
+    {
+      "id": "R01-06", "title": "当前要求改变取舍仍可检索资料", "tier": "exploratory", "state": "active",
+      "operations": [{"method": "search", "params": {"query": "这次内部小工具由我决定使用命令行，先交付脚本，后续再考虑图形入口。", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01"], "complete_conditions_for": ["SYN-M01"], "no_warnings": true}}]
+    },
+    {
+      "id": "R01-07", "title": "项目范围不符", "tier": "required", "state": "active",
+      "operations": [
+        {"method": "search", "label": "范围正确的正对照", "params": {"query": "商品去重", "project": "SYN-crawler", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M02"], "no_warnings": true}},
+        {"method": "search", "params": {"query": "商品去重", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"forbids_ids": ["SYN-M02"], "no_warnings": true}},
+        {"method": "context", "params": {"query": "商品去重", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"forbids_ids": ["SYN-M02"], "no_warnings": true}},
+        {"method": "get", "params": {"record_id": "SYN-M02", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"error_contains": "范围"}}
+      ]
+    },
+    {
+      "id": "R01-08", "title": "环境范围不符", "tier": "required", "state": "active",
+      "operations": [
+        {"method": "search", "label": "环境正确的正对照", "params": {"query": "商品去重", "project": "SYN-crawler", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M02"], "no_warnings": true}},
+        {"method": "search", "params": {"query": "商品去重", "project": "SYN-crawler", "environments": ["linux"]}, "expect": {"forbids_ids": ["SYN-M02"], "no_warnings": true}},
+        {"method": "context", "params": {"query": "商品去重", "project": "SYN-crawler", "environments": ["linux"]}, "expect": {"forbids_ids": ["SYN-M02"], "no_warnings": true}},
+        {"method": "get", "params": {"record_id": "SYN-M02", "project": "SYN-crawler", "environments": ["linux"]}, "expect": {"error_contains": "范围"}}
+      ]
+    },
+    {
+      "id": "R01-09", "title": "草稿不得成为正式结果", "tier": "required", "state": "draft_only",
+      "operations": [
+        {"method": "search", "params": {"query": "图形入口", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"forbids_ids": ["SYN-M01"], "no_warnings": true}},
+        {"method": "context", "params": {"query": "图形入口", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"forbids_ids": ["SYN-M01"], "no_warnings": true}},
+        {"method": "get", "params": {"record_id": "SYN-M01", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"error_contains": "不存在或已经停用"}}
+      ]
+    },
+    {
+      "id": "R01-10", "title": "修订只返回当前 v2", "tier": "required", "state": "revised",
+      "operations": [
+        {"method": "search", "params": {"query": "图形入口", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01"], "versions": {"SYN-M01": 2}, "complete_conditions_for": ["SYN-M01"], "no_warnings": true}},
+        {"method": "context", "params": {"query": "图形入口", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01"], "versions": {"SYN-M01": 2}, "complete_conditions_for": ["SYN-M01"], "no_warnings": true}},
+        {"method": "get", "params": {"record_id": "SYN-M01", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01"], "versions": {"SYN-M01": 2}, "complete_conditions_for": ["SYN-M01"]}}
+      ]
+    },
+    {
+      "id": "R01-11", "title": "撤销后的普通读取", "tier": "required", "state": "revoked",
+      "operations": [
+        {"method": "search", "label": "撤销前的正对照", "phase": "before_revoke", "params": {"query": "图形入口", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01"], "no_warnings": true}},
+        {"method": "search", "params": {"query": "图形入口", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"forbids_ids": ["SYN-M01"], "no_warnings": true}},
+        {"method": "context", "params": {"query": "图形入口", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"forbids_ids": ["SYN-M01"], "no_warnings": true}},
+        {"method": "get", "params": {"record_id": "SYN-M01", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"error_contains": "不存在或已经停用"}}
+      ]
+    },
+    {
+      "id": "R01-12", "title": "整条预算省略及完整读取", "tier": "required", "state": "long_record",
+      "operations": [
+        {"method": "search", "label": "低预算前的正对照", "params": {"query": "图形入口", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01"], "no_warnings": true}},
+        {"method": "context", "params": {"query": "图形入口", "project": "SYN-team-tools", "environments": ["windows"], "max_chars": 1000}, "expect": {"forbids_ids": ["SYN-M01"], "omitted_contains": ["SYN-M01"], "content_chars_max": 1000, "no_warnings": true}},
+        {"method": "get", "params": {"record_id": "SYN-M01", "project": "SYN-team-tools", "environments": ["windows"]}, "expect": {"contains_ids": ["SYN-M01"], "complete_conditions_for": ["SYN-M01"], "versions": {"SYN-M01": 1}}}
+      ]
+    }
+  ]
+}

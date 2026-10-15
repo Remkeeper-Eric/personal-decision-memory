@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>个人决策库 · 审核</title>
+<style>
+:root{color-scheme:light dark;font-family:system-ui,"Microsoft YaHei",sans-serif;background:light-dark(#f6f5f1,#181a19);color:light-dark(#252a27,#e5e9e6);--line:light-dark(#d9ded9,#3e4841);--panel:light-dark(#fff,#242a26);--muted:light-dark(#59675d,#b0bdb3);--accent:light-dark(#246347,#98d6ad)}
+*{box-sizing:border-box}body{margin:0}header{padding:28px 32px 20px;border-bottom:1px solid var(--line)}h1{font-size:24px;margin:0 0 8px}h2{font-size:20px}h3{font-size:16px;margin:26px 0 8px}p{margin:8px 0;line-height:1.7}.muted{color:var(--muted)}main{display:grid;grid-template-columns:300px minmax(0,1fr);max-width:1200px;margin:auto}aside{padding:24px;border-right:1px solid var(--line)}article{padding:28px 36px;min-width:0}.list{display:flex;flex-direction:column;gap:8px}button{font:inherit;cursor:pointer;padding:10px 14px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:inherit;text-align:left}button:hover{border-color:var(--accent)}button:disabled{opacity:.55;cursor:default}.item[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}.primary{background:light-dark(#246347,#98d6ad);color:light-dark(#fff,#183423);border-color:transparent}.actions{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}.check{display:flex;gap:10px;align-items:flex-start;margin-top:24px;line-height:1.7}input{margin-top:6px}li{line-height:1.7;margin:5px 0;overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;line-height:1.7;background:var(--panel);padding:16px;border:1px solid var(--line)}.message{padding:12px 0;color:var(--accent);overflow-wrap:anywhere}[hidden]{display:none!important}.facts{display:flex;gap:8px 18px;flex-wrap:wrap;color:var(--muted);font-size:14px}.error{color:light-dark(#9e3128,#ffaaa0)}@media(max-width:760px){header{padding:22px}main{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line);padding:20px}.list{display:flex;flex-direction:row;flex-wrap:wrap}article{padding:22px}.item{max-width:100%}}
+</style>
+</head>
+<body>
+<header><h1>个人决策库</h1><p class="muted">反思由你发起，内容由你审核。确认具体版本后，Codex 才能在后续项目中读取它。</p></header>
+<main>
+<aside><h2>待审核</h2><div id="drafts" class="list"></div><h2>正式记录</h2><div id="records" class="list"></div><div class="actions"><button id="refresh" type="button">刷新列表</button></div><p class="muted">候选改动后，请刷新并重新阅读。正式记录的历史版本保留，停用后不再供普通检索使用。</p></aside>
+<article>
+<div id="welcome"><h2>从一次具体纠正开始</h2><p>在 Codex 中指出回答遗漏了什么考量，让它反思并与你讨论。满意后，要求它形成待审核候选，再回到这里确认。</p><p class="muted">当前没有替你归纳性格或导入旧聊天。先积累少量有来源、有适用条件的记录。</p></div>
+<div id="detail" hidden><h2 id="title"></h2><div class="facts" id="facts"></div><div id="sections"></div><label class="check"><input id="confirmed" type="checkbox"><span id="confirm-label">我已核对来源、考量、条件和例外，确认把这个版本记入正式库。</span></label><div class="actions"><button id="submit" class="primary" type="button" disabled>确认正式记录</button></div></div>
+<p id="message" class="message" role="status" aria-live="polite"></p>
+<div id="warnings" class="error" role="alert"></div>
+</article>
+</main>
+<script>
+(()=>{
+const base=location.pathname.replace(/\/?$/,'/');
+const el=id=>document.getElementById(id);
+const kinds={preference:'明确偏好',decision_case:'决策案例',lesson:'条件化经验',project_fact:'项目事实',external_note:'外部资料'};
+const verification={unverified:'效果尚未验证',observed:'有观察证据',validated:'记录标注为已验证；仍须核查证据'};
+let selection=null;
+async function api(route,options){const response=await fetch(base+'api/'+route,options);const result=await response.json();if(!response.ok)throw Error(result.error||'操作失败');return result;}
+function message(text,error=false){el('message').textContent=text;el('message').classList.toggle('error',error);}
+function section(label,value){const parent=el('sections');const heading=document.createElement('h3');heading.textContent=label;parent.append(heading);if(Array.isArray(value)){const list=document.createElement('ul');for(const text of value.length?value:['未指定']){const item=document.createElement('li');item.textContent=text;list.append(item)}parent.append(list)}else{const text=document.createElement('pre');text.textContent=value||'未指定';parent.append(text)}}
+async function openItem(item,mode){try{const data=await api(mode==='draft'?'draft?path='+encodeURIComponent(item.path):'record?id='+encodeURIComponent(item.id));selection={...data,mode};const r=data.record;el('welcome').hidden=true;el('detail').hidden=false;el('title').textContent=r.title;el('facts').replaceChildren();for(const fact of [kinds[r.kind],r.id,mode==='draft'?'待审核候选':'正式版本 '+data.version,verification[r.verification]]){const span=document.createElement('span');span.textContent=fact;el('facts').append(span)}el('sections').replaceChildren();section('来源与证据',r.sources);section('需要考虑的因素',r.considerations);section('取舍的理由',r.rationale);section('适用条件',r.applies_when);section('例外与不适用情况',r.exceptions.length?r.exceptions:['尚未列出例外，请确认是否需要补充']);section('以后应采取的动作',r.action);section('适用项目',r.project_scope.length?r.project_scope:['全局；仍须核对具体条件']);section('环境要求',r.environments.length?r.environments:['未限定']);if(r.body)section('补充记录',r.body);el('confirmed').checked=false;el('submit').disabled=true;el('submit').textContent=mode==='draft'?'确认正式记录':'确认停用这条记录';el('confirm-label').textContent=mode==='draft'?'我已核对来源、考量、条件和例外，确认把这个版本记入正式库。':'我确认停用这个版本；它将不再供后续决策检索，历史文件仍然保留。';message('')}catch(error){message(error.message,true)}}
+async function load(){try{const data=await api('list');for(const [key,mode] of [['drafts','draft'],['records','record']]){const target=el(key);target.replaceChildren();if(!data[key].length){const text=document.createElement('p');text.className='muted';text.textContent=key==='drafts'?'暂无待审核候选':'暂无正式记录';target.append(text)}for(const item of data[key]){const button=document.createElement('button');button.type='button';button.className='item';button.textContent=item.title;button.disabled=item.valid===false;if(item.error){button.textContent+=' · 格式需要修正'}button.addEventListener('click',()=>openItem(item,mode));target.append(button)}}el('warnings').textContent=data.warnings.map(x=>x.id+'：'+x.error).join('\n')}catch(error){message(error.message,true)}}
+el('confirmed').addEventListener('change',()=>{el('submit').disabled=!el('confirmed').checked});
+el('refresh').addEventListener('click',async()=>{selection=null;el('detail').hidden=true;el('welcome').hidden=false;await load();message('已刷新；请重新选择记录。')});
+el('submit').addEventListener('click',async()=>{if(!selection||!el('confirmed').checked)return;el('submit').disabled=true;try{const result=await api(selection.mode==='draft'?'publish':'revoke',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({review_token:selection.review_token,confirmed:true})});message(selection.mode==='draft'?'已正式记录：'+result.id+'，版本 '+result.version+'。批准与效果验证仍是两个不同状态。':'已停用：'+result.id);selection=null;el('detail').hidden=true;el('welcome').hidden=false;await load()}catch(error){message(error.message+'；请刷新并重新阅读。',true);el('confirmed').checked=false}});
+load();
+})();
+</script>
+</body>
+</html>

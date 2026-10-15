@@ -135,6 +135,7 @@ Obsidian 选择“打开文件夹作为仓库”，打开安装本系统的仓�
 ## 开发与发布
 
 ~~~powershell
+New-Item -ItemType Directory -Path runtime -Force | Out-Null
 .\.venv\Scripts\python.exe -m pytest --basetemp runtime/pytest-manual --junitxml runtime/pytest.xml
 .\.venv\Scripts\python.exe scripts/prepare_release.py --check
 .\.venv\Scripts\python.exe scripts/prepare_release.py

@@ -1,0 +1,31 @@
+name: Windows tests
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          .\.venv\Scripts\python.exe -m pip install -r requirements.lock.txt
+          .\.venv\Scripts\python.exe -m pip install --no-deps -e .
+      - name: Test isolated stores
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path runtime -Force | Out-Null
+          .\.venv\Scripts\python.exe -m pytest --basetemp runtime/pytest-ci --junitxml runtime/pytest.xml
+      - name: Check public source list
+        shell: pwsh
+        run: .\.venv\Scripts\python.exe scripts/prepare_release.py --check
